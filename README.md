@@ -1,4 +1,4 @@
-# 🛍️ Spire E-Commerce Android App (Offline-First)
+# 🛍️ Spire E-Commerce Android App
 
 An Android e-commerce application built with
 **Kotlin**, **Jetpack Compose**, **Room Database**, and **Retrofit**. 

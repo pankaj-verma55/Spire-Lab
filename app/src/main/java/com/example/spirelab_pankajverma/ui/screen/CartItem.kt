@@ -3,6 +3,7 @@ package com.example.spirelab_pankajverma.ui.screen
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -49,6 +51,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.spirelab_pankajverma.viewmodel.ProductViewModel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.StringFormat
+import java.util.Locale
 
 @Composable
 fun CartItem(
@@ -70,7 +74,7 @@ fun CartItem(
             Spacer(modifier = Modifier.weight(1f))
         }
         LazyColumn(
-            modifier = Modifier
+            modifier = Modifier.weight(0.9f)
                 .fillMaxSize()
                 .padding(top = 20.dp)
         ) {
@@ -173,6 +177,39 @@ fun CartItem(
             }
 
         }
+
+        Column(
+            modifier = Modifier.weight(0.1f)
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .border(
+                    width = 0.5.dp, color = Color.LightGray,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .background(Color.White, RoundedCornerShape(8.dp))
+                .clickable {
+
+                },
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "Total Items: ${cartList.size}",
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                color = Color.Black
+            )
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "Total Price: ₹ ${String.format(Locale.US, "%.2f", cartList.sumOf { it.price * it.count })}",
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                color = Color.Black
+            )
+
+        }
+
 
 
     }

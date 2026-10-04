@@ -81,7 +81,6 @@ fun CartItem(
                     Row(
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
-                            .padding(end = 8.dp)
                             .border(
                                 color = Color.DarkGray,
                                 shape = RoundedCornerShape(8.dp),
@@ -104,7 +103,7 @@ fun CartItem(
                             modifier = Modifier
                                 .weight(0.70f)
                                 .fillMaxHeight()
-                                .padding(start = 12.dp),
+                                .padding(start = 12.dp, end = 8.dp),
                             verticalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Text(

@@ -84,7 +84,6 @@ fun ProductList(product: List<Product>,
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
-                        .padding(end = 8.dp)
                         .border(
                             color = Color.DarkGray,
                             shape = RoundedCornerShape(8.dp), width = 0.5.dp
@@ -119,7 +118,7 @@ fun ProductList(product: List<Product>,
                         modifier = Modifier
                             .weight(0.70f)
                             .fillMaxHeight()
-                            .padding(start = 12.dp),
+                            .padding(start = 12.dp, end = 8.dp),
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(

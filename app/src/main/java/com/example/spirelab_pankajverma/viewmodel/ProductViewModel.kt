@@ -85,9 +85,13 @@ class ProductViewModel(private val repository: ProductRepository,
 
     fun searchProduct(query: String) {
         viewModelScope.launch {
-            _list.value = repository.searchProduct(query)
-            Log.e("SPIRE search--->", "API get product search${_list.value}")
-
+            networkObserver.isConnected.collect { isConnected ->
+                if (isConnected) {
+                    _list.value = repository.searchProduct(query)
+                } else {
+                    _networkMessage.emit("Sorry Internet is not available")
+                }
+            }
         }
     }
 

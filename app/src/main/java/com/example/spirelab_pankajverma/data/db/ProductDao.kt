@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.spirelab_pankajverma.data.item.Product
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,9 +27,10 @@ interface ProductDao {
     @Query("SELECT COALESCE(SUM(quantity), 0) FROM product_cart_item")
     fun getTotalCartCount(): Flow<Int>
 
-    @Query("SELECT * FROM product_cart_item")
-    suspend fun getAllCachedProducts(): List<ProductEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAllProducts(products: List<ProductEntity>)
+    @Query("SELECT * FROM product_catalog_cache")
+    suspend fun getAllCachedCatalog(): List<ProductCatalogEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllCatalog(products: List<ProductCatalogEntity>)
 }

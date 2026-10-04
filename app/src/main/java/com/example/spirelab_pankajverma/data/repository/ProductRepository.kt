@@ -1,19 +1,73 @@
 package com.example.spirelab_pankajverma.data.repository
 
+import android.content.Context
 import android.util.Log
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import com.example.spirelab_pankajverma.data.db.ProductCatalogEntity
 import com.example.spirelab_pankajverma.data.db.ProductDao
 import com.example.spirelab_pankajverma.data.db.ProductEntity
 import com.example.spirelab_pankajverma.data.item.Product
-import com.example.spirelab_pankajverma.data.item.ProductDataItem
 import com.example.spirelab_pankajverma.data.retrofit.ProductRetrofitApi
-import com.example.spirelab_pankajverma.ui.screen.showBottomMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 class ProductRepository(private val api: ProductRetrofitApi,
-                        private val productDao: ProductDao) {
+                        private val productDao: ProductDao,
+                        private val context: Context
+) {
+
+
+    suspend fun getProductAll(): List<Product> {
+        return try {
+            val response = api.productService.getProducts()
+            val remoteProducts = response?.products ?: emptyList()
+
+            if (remoteProducts.isNotEmpty()) {
+                // Map List<Product> -> List<ProductCatalogEntity> for Room
+                val entities = remoteProducts.map { p ->
+                    ProductCatalogEntity(
+                        id = p.id,
+                        title = p.title,
+                        price = p.price,
+                        thumbnail = p.thumbnail,
+                        stock = p.stock,
+                        images = p.images ?: emptyList(),
+                        description = p.description,
+                        rating = p.rating,
+                        category = p.category,
+                        brand = p.brand
+                    )
+                }
+                productDao.insertAllCatalog(entities)
+                prefetchImages(remoteProducts)
+            }
+            remoteProducts
+        } catch (e: Exception) {
+            Log.e("SPIRE--->", "Network error, reading from cache: ", e)
+            // Map List<ProductCatalogEntity> -> List<Product> for UI
+            productDao.getAllCachedCatalog().map { entity ->
+                Product(
+                    id = entity.id,
+                    title = entity.title,
+                    price = entity.price,
+                    thumbnail = entity.thumbnail,
+                    stock = entity.stock,
+                    images = entity.images,
+                    description = entity.description,
+                    rating = entity.rating,
+                    category = entity.category,
+                    brand = entity.brand
+                )
+            }
+        }
+    }
 
 //    api
-    suspend fun getProduct(): List<Product> {
+    suspend fun getProductCart(): List<Product> {
         val response = api.productService.getProducts()
         if (response == null) {
             Log.d("SPIRE--->", "Response is null")
@@ -123,6 +177,21 @@ class ProductRepository(private val api: ProductRetrofitApi,
             productDao.removeCartItem(productId)
         } catch (e: Exception) {
             Log.e("SPIRE--->", "Error deleting cart item: ", e)
+        }
+    }
+    private fun prefetchImages(products: List<Product>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            products.forEach { product ->
+                val imageUrl = product.images.firstOrNull() ?: product.thumbnail
+                if (!imageUrl.isNullOrBlank()) {
+                    val request = ImageRequest.Builder(context)
+                        .data(imageUrl)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .networkCachePolicy(CachePolicy.ENABLED)
+                        .build()
+                    context.imageLoader.enqueue(request)
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.spirelab_pankajverma.ui.screen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Query
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.spirelab_pankajverma.data.item.Product
 import com.example.spirelab_pankajverma.viewmodel.ProductViewModel
 
@@ -61,6 +65,12 @@ fun ProductList(product: List<Product>,
 
     val searchItem = rememberSaveable(saver = TextFieldState.Saver) {
         TextFieldState()
+    }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.networkMessage.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
     Column(modifier = Modifier) {
         SimpleSearchBar(
@@ -86,11 +96,23 @@ fun ProductList(product: List<Product>,
                         .height(IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+//                    AsyncImage(
+//                        modifier = Modifier
+//                            .weight(0.35f)
+//                            .aspectRatio(1f),
+//                        model = it.images.firstOrNull(),
+//                        contentDescription = it.title
+//                    )
                     AsyncImage(
                         modifier = Modifier
                             .weight(0.35f)
                             .aspectRatio(1f),
-                        model = it.images.firstOrNull(),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(it.images.firstOrNull() ?: it.thumbnail)
+                            .crossfade(true)
+                            .diskCachePolicy(CachePolicy.ENABLED) // Read from disk cache
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .build(),
                         contentDescription = it.title
                     )
                     Column(
@@ -102,7 +124,7 @@ fun ProductList(product: List<Product>,
                     ) {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = it.title,
+                            text = it.title.toString(),
                             maxLines = 1,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -113,7 +135,7 @@ fun ProductList(product: List<Product>,
                         )
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = it.description,
+                            text = it.description.toString(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

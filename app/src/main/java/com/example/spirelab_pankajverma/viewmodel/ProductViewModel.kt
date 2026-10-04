@@ -6,10 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.spirelab_pankajverma.data.db.ProductEntity
 import com.example.spirelab_pankajverma.data.item.Product
 import com.example.spirelab_pankajverma.data.repository.ProductRepository
+import com.example.spirelab_pankajverma.data.utility.NetworkObserver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -18,7 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ProductViewModel(private val repository: ProductRepository) : ViewModel() {
+class ProductViewModel(private val repository: ProductRepository,
+                       private val networkObserver: NetworkObserver
+) : ViewModel() {
+
+    // Event flow for UI one-off messages
+    private val _networkMessage = MutableSharedFlow<String>()
+    val networkMessage = _networkMessage.asSharedFlow()
     private val _searchQuery = MutableStateFlow("")
     // 1. Observable list from Room DB
     val dbCartItem: StateFlow<List<ProductEntity>> = repository.getCartItems()
@@ -37,11 +46,6 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
             initialValue = 0
         )
 
-//    private val _cartItem = MutableStateFlow<List<Product>>(emptyList())
-
-//    private val _dbCartItem = MutableStateFlow<List<ProductEntity>>(emptyList())
-//    val dbCartItem: StateFlow<List<ProductEntity>> = _dbCartItem.asStateFlow()
-
     private val _list = MutableStateFlow<List<Product>>(emptyList())
     val list: StateFlow<List<Product>> = _list.asStateFlow()
 
@@ -49,6 +53,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     val loader: StateFlow<Boolean> = _loader
 
     init {
+        observeNetwork()
         observeSearch()
     }
 
@@ -56,7 +61,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 _loader.value = true
-                val response = repository.getProduct()
+                val response = repository.getProductAll()
 
                 Log.d("SPIRE search--->", "API Response: $response")
 
@@ -97,7 +102,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
                         _loader.value = true
 
                         if (query.isBlank()) {
-                            _list.value = repository.getProduct()
+                            _list.value = repository.getProductAll()
                             Log.e("SPIRE search--->", "API get product observe${_list.value.size}")
                         } else {
                             _list.value = repository.searchProduct(query)
@@ -125,6 +130,18 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     fun removeFromCart(productId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.removeFromCart(productId)
+        }
+    }
+    private fun observeNetwork() {
+        viewModelScope.launch {
+            networkObserver.isConnected.collect { isConnected ->
+                if (isConnected) {
+                    _networkMessage.emit("Internet connection restored")
+                    getProduct() // Refresh data from API and sync to Room
+                } else {
+                    _networkMessage.emit("Internet disconnected. Offline mode active")
+                }
+            }
         }
     }
 }

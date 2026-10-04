@@ -16,6 +16,6 @@ data class ProductEntity(
     val brand: String,
     val stock: Int,
     val count: Int = 0,
-    val thumbnail: String,
+    val thumbnail: String?,
     val quantity: Int
 )

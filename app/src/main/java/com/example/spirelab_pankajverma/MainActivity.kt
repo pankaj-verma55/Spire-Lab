@@ -28,6 +28,7 @@ import com.example.spirelab_pankajverma.data.db.DatabaseProvider
 import com.example.spirelab_pankajverma.data.item.Product
 import com.example.spirelab_pankajverma.data.repository.ProductRepository
 import com.example.spirelab_pankajverma.data.retrofit.ProductRetrofitApi
+import com.example.spirelab_pankajverma.data.utility.NetworkObserver
 import com.example.spirelab_pankajverma.ui.screen.CartItem
 import com.example.spirelab_pankajverma.ui.screen.ProductDetail
 import com.example.spirelab_pankajverma.ui.screen.ProductList
@@ -48,8 +49,9 @@ class MainActivity : ComponentActivity() {
         val productDao = database.cartDao()
         val api = ProductRetrofitApi()
         // create repository first
-        repository = ProductRepository(api, productDao)
-        viewModelFactory = ProductViewModelFactory(repository)
+        repository = ProductRepository(api, productDao,applicationContext)
+        val networkObserver = NetworkObserver(applicationContext)
+        viewModelFactory = ProductViewModelFactory(repository,networkObserver)
         viewModel = ViewModelProvider(this, viewModelFactory)[ProductViewModel::class.java]
 
         setContent {

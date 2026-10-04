@@ -1,5 +1,8 @@
 # 🛍️ Spire E-Commerce Android App
 
+Project Screen short or Video
+https://drive.google.com/drive/folders/1MBUtPz8Cv3VSMVSyJJPP1TjqZgy_g7vq?usp=sharing
+
 An Android e-commerce application built with
 **Kotlin**, **Jetpack Compose**, **Room Database**, and **Retrofit**. 
 It satisfies all functional requirements by fetching products from the DummyJSON API and providing a fully functional, locally persisted shopping cart that works online and offline.

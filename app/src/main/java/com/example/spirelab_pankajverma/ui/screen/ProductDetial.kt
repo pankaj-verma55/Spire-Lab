@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,7 +43,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.spirelab_pankajverma.data.utility.Constant
 import com.example.spirelab_pankajverma.viewmodel.ProductViewModel
-import org.intellij.lang.annotations.JdkConstants
 
 @Composable
 fun ProductDetail(

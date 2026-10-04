@@ -19,15 +19,12 @@ class ProductRepository(private val api: ProductRetrofitApi,
                         private val productDao: ProductDao,
                         private val context: Context
 ) {
-
-
     suspend fun getProductAll(): List<Product> {
         return try {
             val response = api.productService.getProducts()
             val remoteProducts = response?.products ?: emptyList()
 
             if (remoteProducts.isNotEmpty()) {
-                // Map List<Product> -> List<ProductCatalogEntity> for Room
                 val entities = remoteProducts.map { p ->
                     ProductCatalogEntity(
                         id = p.id,
@@ -48,7 +45,6 @@ class ProductRepository(private val api: ProductRetrofitApi,
             remoteProducts
         } catch (e: Exception) {
             Log.e("SPIRE--->", "Network error, reading from cache: ", e)
-            // Map List<ProductCatalogEntity> -> List<Product> for UI
             productDao.getAllCachedCatalog().map { entity ->
                 Product(
                     id = entity.id,
@@ -65,21 +61,6 @@ class ProductRepository(private val api: ProductRetrofitApi,
             }
         }
     }
-
-//    api
-    suspend fun getProductCart(): List<Product> {
-        val response = api.productService.getProducts()
-        if (response == null) {
-            Log.d("SPIRE--->", "Response is null")
-            return emptyList()
-        }
-        if(response.products.isEmpty()) {
-            Log.d("SPIRE--->", "No products found")
-            return emptyList()
-        }
-        return response.products
-    }
-// api
     suspend fun searchProduct(query: String): List<Product> {
         val response = api.productService.getSearchProduct(query)
         if (response == null) {
@@ -93,39 +74,12 @@ class ProductRepository(private val api: ProductRetrofitApi,
         return response.products
     }
 
-    // Add selected product to cart from db
-//    suspend fun addToCart(product: Product) {
-//        try {
-//            val existingItem = productDao.getCartItemById(product.id)
-//
-//            if (existingItem != null) {
-//                val newEntity = ProductEntity(
-//                    productId = product.id,
-//                    title = product.title ?: "",
-//                    price = product.price,
-//                    thumbnail = product.thumbnail,
-//                    quantity = 1, // Start at 1
-//                    images = product.images,
-//                    description = product.description ?: "",
-//                    rating = product.rating,
-//                    category = product.category ?: "",
-//                    brand = product.brand ?: "N/A",
-//                    stock = product.stock
-//                )
-//                productDao.insertCartItem(newEntity)
-//                Log.d("SPIRE--->", "Inserted new cart item: ${product.title}")
-//            }
-//        } catch (e: Exception) {
-//            Log.e("SPIRE--->", "Failed to add to cart: ", e)
-//        }
-//    }
-
     suspend fun addToCart(product: Product) {
         try {
             val existingItem = productDao.getCartItemById(product.id)
 
             if (existingItem != null) {
-                // Case 1: Item already in cart -> increment count if stock allows
+                // Item already in cart increment count if stock allows
                 if (existingItem.count < existingItem.stock) {
                     val newCount = existingItem.count + 1
                     productDao.updateCount(product.id, newCount)
@@ -134,7 +88,7 @@ class ProductRepository(private val api: ProductRetrofitApi,
                     Log.d("SPIRE--->", "Cannot add: Reached maximum stock for: ${product.title}")
                 }
             } else {
-                // Case 2: Item NOT in cart -> insert new item with count = 1
+                // Item NOT in cart insert new item with count
                 val newEntity = ProductEntity(
                     productId = product.id,
                     title = product.title ?: "",
@@ -162,8 +116,6 @@ class ProductRepository(private val api: ProductRetrofitApi,
         Log.d("SPIRE--->", "Product Get Cart Item: ${productDao.getCartItems()}")
         return productDao.getCartItems()
     }
-
-    // Inside ProductRepository.kt
     suspend fun updateCount(productId: Int, newCount: Int) {
         try {
             productDao.updateCount(productId, newCount)

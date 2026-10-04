@@ -12,7 +12,7 @@ data class Product(
     val thumbnail: String?,
     val title: String?,
 
-    // Non useable field make it default
+    // Non useable field
     val availabilityStatus: String = "",
     val dimensions: Dimensions? = null,
     val discountPercentage: Double = 0.0,

@@ -24,20 +24,15 @@ import kotlinx.coroutines.launch
 class ProductViewModel(private val repository: ProductRepository,
                        private val networkObserver: NetworkObserver
 ) : ViewModel() {
-
-    // Event flow for UI one-off messages
     private val _networkMessage = MutableSharedFlow<String>()
     val networkMessage = _networkMessage.asSharedFlow()
     private val _searchQuery = MutableStateFlow("")
-    // 1. Observable list from Room DB
     val dbCartItem: StateFlow<List<ProductEntity>> = repository.getCartItems()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-
-    // 2. Real-time total count of all clicks/quantities
     val cartTotalCount: StateFlow<Int> = dbCartItem
         .map { list -> list.size } // Sum of all quantities added
         .stateIn(

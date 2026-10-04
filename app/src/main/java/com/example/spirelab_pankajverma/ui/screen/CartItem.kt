@@ -1,7 +1,6 @@
 package com.example.spirelab_pankajverma.ui.screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -31,10 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,7 +47,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.spirelab_pankajverma.viewmodel.ProductViewModel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.StringFormat
 import java.util.Locale
 
 @Composable
@@ -207,14 +202,8 @@ fun CartItem(
                 textAlign = TextAlign.Center,
                 color = Color.Black
             )
-
         }
-
-
-
     }
-
-
 }
 
 @Composable
@@ -244,22 +233,5 @@ fun ProductItemCount(
             textAlign = TextAlign.Center,
             fontSize = 18.sp,
             text = "+")
-    }
-}
-
-
-
-// Helper function to show any dynamic message
-@SuppressLint("CoroutineCreationDuringComposition")
-@Composable
-fun showBottomMessage(message: String) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    rememberCoroutineScope().launch {
-        // Dismiss active snackbar if one is already showing
-        snackbarHostState.currentSnackbarData?.dismiss()
-        snackbarHostState.showSnackbar(
-            message = message,
-            duration = SnackbarDuration.Short
-        )
     }
 }

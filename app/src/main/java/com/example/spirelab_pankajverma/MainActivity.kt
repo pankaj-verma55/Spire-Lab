@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -48,7 +47,6 @@ class MainActivity : ComponentActivity() {
 
         val productDao = database.cartDao()
         val api = ProductRetrofitApi()
-        // create repository first
         repository = ProductRepository(api, productDao,applicationContext)
         val networkObserver = NetworkObserver(applicationContext)
         viewModelFactory = ProductViewModelFactory(repository,networkObserver)
@@ -119,14 +117,5 @@ fun App(products: List<Product>, viewModel: ProductViewModel) {
         }
 
 
-    }
-//    ProductList(products, viewModel)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SPIRELab_PankajVermaTheme {
-//        App()
     }
 }

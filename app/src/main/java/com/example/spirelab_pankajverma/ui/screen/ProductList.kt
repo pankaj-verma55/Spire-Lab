@@ -35,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.Query
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -59,9 +57,9 @@ import com.example.spirelab_pankajverma.data.item.Product
 import com.example.spirelab_pankajverma.viewmodel.ProductViewModel
 
 @Composable
-fun ProductList(product: List<Product>,
-                viewModel: ProductViewModel,
-                onProductClick: (Int) -> Unit) {
+fun ProductList(
+    product: List<Product>, viewModel: ProductViewModel, onProductClick: (Int) -> Unit
+) {
 
     val searchItem = rememberSaveable(saver = TextFieldState.Saver) {
         TextFieldState()
@@ -74,9 +72,8 @@ fun ProductList(product: List<Product>,
     }
     Column(modifier = Modifier) {
         SimpleSearchBar(
-            viewModel = viewModel,
-            textFieldState = searchItem
-            )
+            viewModel = viewModel, textFieldState = searchItem
+        )
         Spacer(modifier = Modifier.height(10.dp))
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(product) {
@@ -85,33 +82,25 @@ fun ProductList(product: List<Product>,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .border(
-                            color = Color.DarkGray,
-                            shape = RoundedCornerShape(8.dp), width = 0.5.dp
+                            color = Color.DarkGray, shape = RoundedCornerShape(8.dp), width = 0.5.dp
                         )
-                        .clickable{
+                        .clickable {
                             onProductClick(it.id)
                         }
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-//                    AsyncImage(
-//                        modifier = Modifier
-//                            .weight(0.35f)
-//                            .aspectRatio(1f),
-//                        model = it.images.firstOrNull(),
-//                        contentDescription = it.title
-//                    )
+                    verticalAlignment = Alignment.CenterVertically) {
+//                    i have added becouse when device is ofline then it is
+//                    not showing image becouse coil is not fetching the image so now i have create
+//                    some space for image only in db
                     AsyncImage(
                         modifier = Modifier
                             .weight(0.35f)
                             .aspectRatio(1f),
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(it.images.firstOrNull() ?: it.thumbnail)
-                            .crossfade(true)
+                            .data(it.images.firstOrNull() ?: it.thumbnail).crossfade(true)
                             .diskCachePolicy(CachePolicy.ENABLED) // Read from disk cache
-                            .memoryCachePolicy(CachePolicy.ENABLED)
-                            .build(),
+                            .memoryCachePolicy(CachePolicy.ENABLED).build(),
                         contentDescription = it.title
                     )
                     Column(
@@ -155,11 +144,8 @@ fun ProductList(product: List<Product>,
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleSearchBar(
-    viewModel: ProductViewModel,
-    textFieldState: TextFieldState,
-    modifier: Modifier = Modifier
+    viewModel: ProductViewModel, textFieldState: TextFieldState, modifier: Modifier = Modifier
 ) {
-    // Controls expansion state of the search bar
     var expanded by rememberSaveable { mutableStateOf(false) }
     val items = rememberSaveable { mutableStateListOf("") }
 
@@ -199,23 +185,19 @@ fun SimpleSearchBar(
                                     } else {
                                         textFieldState.edit { replace(0, length, "") }
                                     }
-                                },
-                                imageVector = Icons.Default.Close, contentDescription = null
+                                }, imageVector = Icons.Default.Close, contentDescription = null
                             )
                         }
-                    }
-                )
+                    })
             },
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            // Display search results in a scrollable column
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 items.forEach { result ->
                     ListItem(
                         headlineContent = { Text(result) }, modifier = Modifier
                             .clickable {
-//                                textFieldState.edit { replace(0, length, result) }
                                 expanded = false
                             }
                             .fillMaxWidth())
